@@ -13,7 +13,8 @@ repositories {
     maven { url 'https://oss.sonatype.org/content/repositories/public' }
     mavenCentral()
     flatDir {
-        dirs 'd:\\Development\\Scala\\Work\\tmp\\TestPlugin\\'
+        //dirs 'd:\\Development\\Scala\\Work\\tmp\\TestPlugin\\'
+        dirs 'd:\\Development\\Scala\\Work\\CopperCompilerPlugin\\target\\scala-2.12\\'
     }
 }
 configurations {
@@ -21,9 +22,22 @@ configurations {
 }
 dependencies {
     scalaCompilerPlugin 'localhost:ccplugin_2.12:0.1.0'
-    compile 'com.sbuslab:utils:1.2.+'
-    compile 'com.sbuslab:akka-http-tools:1.1.+'
-    compile 'com.sbuslab:sbus:1.1.+'
+    implementation 'com.sbuslab:utils:1.2.+'
+    implementation 'com.sbuslab:akka-http-tools:1.1.+'
+    implementation 'com.sbuslab:sbus:1.1.+'
+}
+
+task prepareDirs {
+    mustRunAfter clean
+    doLast {
+        mkdir "$buildDir/ccplugin"
+    }
+}
+
+tasks.each {
+    if (it != prepareDirs && it != clean) {
+        it.dependsOn prepareDirs
+    }
 }
 
 tasks.withType(ScalaCompile){
@@ -35,6 +49,8 @@ tasks.withType(ScalaCompile){
             configurations.scalaCompilerPlugin.files.collect {
                 '-Xplugin:'+ it.absolutePath
             }
+
+    parameters.add("-P:guardedblocks:out=$buildDir/ccplugin/".toString())
 
     // Add existing parameters
     List<String> existingParameters = scalaCompileOptions.additionalParameters
