@@ -27,19 +27,6 @@ dependencies {
     implementation 'com.sbuslab:sbus:1.1.+'
 }
 
-task prepareDirs {
-    mustRunAfter clean
-    doLast {
-        mkdir "$buildDir/ccplugin"
-    }
-}
-
-tasks.each {
-    if (it != prepareDirs && it != clean) {
-        it.dependsOn prepareDirs
-    }
-}
-
 tasks.withType(ScalaCompile){
     scalaCompileOptions.with {
         force = true
@@ -50,7 +37,7 @@ tasks.withType(ScalaCompile){
                 '-Xplugin:'+ it.absolutePath
             }
 
-    parameters.add("-P:guardedblocks:out=$buildDir/ccplugin/".toString())
+    parameters.add("-P:ccplugin:out=$buildDir/ccplugin/".toString())
 
     // Add existing parameters
     List<String> existingParameters = scalaCompileOptions.additionalParameters
